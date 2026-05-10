@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="stats">
+    <div class="stat-card">📋 Total: <strong>{{ total }}</strong></div>
+    <div class="stat-card">⏳ Pending: <strong>{{ pending }}</strong></div>
+    <div class="stat-card">✅ Completed: <strong>{{ completed }}</strong></div>
+</div>
+
+<div class="add-task-form">
+    <h3>➕ Add New Task</h3>
+    <form method="POST" action="{{ url_for('add_task') }}">
+        <input type="text" name="title" placeholder="Task title..." required>
+        <textarea name="description" placeholder="Description (optional)"></textarea>
+        <select name="priority">
+            <option value="low">🟢 Low Priority</option>
+            <option value="medium" selected>🟡 Medium Priority</option>
+            <option value="high">🔴 High Priority</option>
+        </select>
+        <button type="submit">Add Task</button>
+    </form>
+</div>
+
+<div class="filters">
+    <a href="?status=all" class="{% if filter_status == 'all' %}active{% endif %}">All</a>
+    <a href="?status=pending" class="{% if filter_status == 'pending' %}active{% endif %}">Pending</a>
+    <a href="?status=completed" class="{% if filter_status == 'completed' %}active{% endif %}">Completed</a>
+    <a href="?priority=high" class="{% if filter_priority == 'high' %}active{% endif %}">🔴 High</a>
+</div>
+
+<div class="task-list">
+    {% for task in tasks %}
+    <div class="task-card {{ task.status }} priority-{{ task.priority }}">
+        <div class="task-info">
+            <h4>{{ task.title }}</h4>
+            <p>{{ task.description }}</p>
+            <small>Priority: {{ task.priority }} | {{ task.created_at.strftime('%b %d, %Y') }}</small>
+        </div>
+        <div class="task-actions">
+            {% if task.status == 'pending' %}
+            <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn-complete">✅ Complete</a>
+            {% else %}
+            <span class="done-badge">✅ Done</span>
+            {% endif %}
+            <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn-delete">🗑️ Delete</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty">No tasks yet! Add your first task above. 🚀</div>
+    {% endfor %}
+</div>
+{% endblock %}
